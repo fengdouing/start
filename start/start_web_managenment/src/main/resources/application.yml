@@ -1,0 +1,16 @@
+#配置数据库连接信息
+spring:
+  application:
+    name: start-web-managenment
+  datasource:
+    url: jdbc:mysql://localhost:3306/start
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 2006
+
+#配置Mybatis
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#配置对于驼峰命名的映射
+    map-underscore-to-camel-case: true
