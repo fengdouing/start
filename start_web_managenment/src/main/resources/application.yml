@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: qihang-class-management
+  datasource:
+    url: "${DB_URL:jdbc:mysql://localhost:3306/start?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: "${DB_USERNAME:root}"
+    password: "${DB_PASSWORD:}"
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    map-underscore-to-camel-case: true
+
+file:
+  upload-dir: "${FILE_UPLOAD_DIR:./uploads}"
+  max-size-mb: 10
+
+jwt:
+  # 必须通过环境变量提供，至少 32 字节。示例见根目录 README。
+  secret: "${JWT_SECRET}"
+  expire: 7200
+  header: Authorization
+  prefix: "Bearer "

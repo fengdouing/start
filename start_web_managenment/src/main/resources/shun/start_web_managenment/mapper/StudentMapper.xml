@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="shun.start_web_managenment.mapper.StudentMapper">
+
+    <sql id="baseColumns">
+        s.id, s.name, s.no, s.gender, s.phone, s.id_card, s.is_college, s.address,
+        s.degree, s.graduation_date, s.clazz_id, s.violation_count, s.violation_score,
+        s.create_time, s.update_time,
+        c.name as clazzName
+    </sql>
+
+    <!-- 条件分页查询学员列表 -->
+    <select id="list" resultType="shun.start_web_managenment.pojo.Student">
+        select <include refid="baseColumns"/>
+        from student s
+        left join clazz c on s.clazz_id = c.id
+        <where>
+            <if test="name != null and name != ''">
+                and s.name like concat('%', #{name}, '%')
+            </if>
+            <if test="degree != null">
+                and s.degree = #{degree}
+            </if>
+            <if test="clazzId != null">
+                and s.clazz_id = #{clazzId}
+            </if>
+        </where>
+        order by s.update_time desc, s.id desc
+    </select>
+
+    <!-- 根据ID查询学员 -->
+    <select id="getById" resultType="shun.start_web_managenment.pojo.Student">
+        select <include refid="baseColumns"/>
+        from student s
+        left join clazz c on s.clazz_id = c.id
+        where s.id = #{id}
+    </select>
+
+    <!-- 新增学员 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into student(name, no, gender, phone, id_card, is_college, address, degree,
+                            graduation_date, clazz_id, violation_count, violation_score,
+                            create_time, update_time)
+        values (#{name}, #{no}, #{gender}, #{phone}, #{idCard}, #{isCollege}, #{address}, #{degree},
+                #{graduationDate}, #{clazzId}, #{violationCount}, #{violationScore},
+                #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 修改学员 -->
+    <update id="update">
+        update student
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="no != null and no != ''">no = #{no},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="idCard != null and idCard != ''">id_card = #{idCard},</if>
+            <if test="isCollege != null">is_college = #{isCollege},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="degree != null">degree = #{degree},</if>
+            <if test="graduationDate != null">graduation_date = #{graduationDate},</if>
+            <if test="clazzId != null">clazz_id = #{clazzId},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 根据ID删除学员 -->
+    <delete id="deleteById">
+        delete from student where id = #{id}
+    </delete>
+
+    <!-- 违纪处理：次数 +1，扣分 + 本次分数 -->
+    <update id="updateViolation">
+        update student
+        set violation_count = violation_count + 1,
+            violation_score = violation_score + #{score},
+            update_time = now()
+        where id = #{id}
+    </update>
+
+    <!-- 删除班级前的校验：该班级下是否有学员 -->
+    <select id="countByClazzId" resultType="int">
+        select count(*) from student where clazz_id = #{clazzId}
+    </select>
+
+    <!-- 班级人数统计 -->
+    <select id="countStudentByClazz" resultType="java.util.Map">
+        select c.name as clazzName, count(s.id) as num
+        from clazz c
+        left join student s on s.clazz_id = c.id
+        group by c.id, c.name
+        order by c.id
+    </select>
+
+    <!-- 学员学历统计 -->
+    <select id="countStudentByDegree" resultType="java.util.Map">
+        select case s.degree
+                   when 1 then '初中'
+                   when 2 then '高中'
+                   when 3 then '大专'
+                   when 4 then '本科'
+                   when 5 then '硕士'
+                   when 6 then '博士'
+                   else '其他'
+               end as name,
+               count(*) as value
+        from student s
+        group by s.degree
+        order by s.degree
+    </select>
+</mapper>

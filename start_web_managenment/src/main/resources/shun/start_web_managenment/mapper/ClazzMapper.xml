@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="shun.start_web_managenment.mapper.ClazzMapper">
+
+    <!-- 公共查询字段：关联员工表取班主任姓名，按当前时间计算班级状态 -->
+    <sql id="baseColumns">
+        c.id, c.name, c.room, c.begin_date, c.end_date, c.master_id, c.subject,
+        c.create_time, c.update_time,
+        e.name as masterName,
+        case
+            when curdate() &gt; c.end_date then '已结课'
+            when curdate() &lt; c.begin_date then '未开班'
+            else '在读中'
+        end as status
+    </sql>
+
+    <!-- 条件分页查询班级列表 -->
+    <select id="list" resultType="shun.start_web_managenment.pojo.Clazz">
+        select <include refid="baseColumns"/>
+        from clazz c
+        left join emp e on c.master_id = e.id
+        <where>
+            <if test="name != null and name != ''">
+                and c.name like concat('%', #{name}, '%')
+            </if>
+            <if test="begin != null">
+                and c.end_date &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                and c.end_date &lt;= #{end}
+            </if>
+        </where>
+        order by c.update_time desc, c.id desc
+    </select>
+
+    <!-- 查询全部班级（下拉框） -->
+    <select id="listAll" resultType="shun.start_web_managenment.pojo.Clazz">
+        select c.id, c.name, c.room, c.begin_date, c.end_date, c.master_id, c.subject,
+               c.create_time, c.update_time
+        from clazz c
+        order by c.id
+    </select>
+
+    <!-- 根据ID查询班级 -->
+    <select id="getById" resultType="shun.start_web_managenment.pojo.Clazz">
+        select <include refid="baseColumns"/>
+        from clazz c
+        left join emp e on c.master_id = e.id
+        where c.id = #{id}
+    </select>
+
+    <!-- 新增班级 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into clazz(name, room, begin_date, end_date, master_id, subject, create_time, update_time)
+        values (#{name}, #{room}, #{beginDate}, #{endDate}, #{masterId}, #{subject}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 修改班级 -->
+    <update id="update">
+        update clazz
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="room != null">room = #{room},</if>
+            <if test="beginDate != null">begin_date = #{beginDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="masterId != null">master_id = #{masterId},</if>
+            <if test="subject != null">subject = #{subject},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 根据ID删除班级 -->
+    <delete id="deleteById">
+        delete from clazz where id = #{id}
+    </delete>
+</mapper>

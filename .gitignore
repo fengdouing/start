@@ -1,0 +1,32 @@
+# ---- 构建产物 ----
+target/
+dist/
+node_modules/
+*.class
+logs/
+uploads/
+
+# ---- IDE / 操作系统 ----
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ---- 本地配置与密钥 ----
+.env
+.env.*
+!.env.example
+application-local.yml
+application-*.local.yml
+
+# ---- 本地历史备份 / AI 辅助文件（保留在本机，不发布）----
+_backup/
+**/_backup*/
+AGENTS.md
+
+# ---- 临时文件 / 本地备份 ----
+_probe*.txt
+*.log
+*.bak
+*.tmp

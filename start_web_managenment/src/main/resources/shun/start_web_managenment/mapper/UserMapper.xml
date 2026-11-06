@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="shun.start_web_managenment.mapper.UserMapper">
+
+    <!-- 根据用户名查询用户（user 是关键字，必须用反引号） -->
+    <select id="findByUsername" resultType="shun.start_web_managenment.pojo.User">
+        select id, username, password, nickname, role, status
+        from `user`
+        where username = #{username}
+        limit 1
+    </select>
+</mapper>
